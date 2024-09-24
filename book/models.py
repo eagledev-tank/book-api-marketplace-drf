@@ -30,3 +30,18 @@ class BookImage(models.Model):
 
     def __str__(self):
         return self.image.name
+
+
+class BookReview(models.Model):
+    book = models.ForeignKey(Book, related_name='reviews', on_delete=models.CASCADE) # отзыв qaysi kitobga tegishli
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['profile', 'book']
+
+    def __str__(self):
+        return f"{self.book.title} - {self.profile.user.email} ({self.rating} stars)"

@@ -39,16 +39,17 @@ from rest_framework_simplejwt.views import (
 )
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="BOOK STORE API",
-      default_version='v1',
-      description="For Frontend and Mobil developer API",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="nurislomlapasov@gmail.com"),
-      license=openapi.License(name="MRIT License"),
-   ),
-   public=True,
-   permission_classes=(permissions.AllowAny,),
+    openapi.Info(
+        title="BOOK STORE API",
+        default_version='v1',
+        description="For Frontend and Mobil developer API",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="nurislomlapasov@gmail.com"),
+        license=openapi.License(name="MRIT License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+    authentication_classes=[],
 )
 
 urlpatterns = [

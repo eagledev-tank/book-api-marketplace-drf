@@ -3,3 +3,6 @@
 
 # VirtualEnv
 venv/
+
+# Thumbnail cache
+media/cache

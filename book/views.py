@@ -29,6 +29,9 @@ class BookImageModelViewSet(ModelViewSet):
     serializer_class = BookImageSerializer
     parser_classes = [MultiPartParser, FormParser]
 
+    def get_serializer_context(self):
+        return {'request': self.request}
+
 
 class BookReviewModelViewSet(ModelViewSet):
     queryset = BookReview.objects.all()

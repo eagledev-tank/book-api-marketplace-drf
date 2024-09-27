@@ -4,12 +4,22 @@ from user.serializers import ProfileSerializer
 from rest_framework import serializers
 from .validators import description_validator
 from django.db.models import Avg
+from sorl.thumbnail import get_thumbnail
 
 
 class BookImageSerializer(ModelSerializer):
+    thumbnail = serializers.SerializerMethodField()
+
     class Meta:
         model = BookImage
         fields = '__all__'
+
+    def get_thumbnail(self, obj):
+        request = self.context.get('request')
+        if obj.image:
+            thumbnail = get_thumbnail(obj.image, '1920x1080', quality=90, format='WEBP')
+            return request.build_absolute_uri(thumbnail.url)
+        return None
 
 
 class BookSerializer(ModelSerializer):

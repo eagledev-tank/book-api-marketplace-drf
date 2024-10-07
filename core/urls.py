@@ -24,14 +24,14 @@ from drf_yasg import openapi
 
 from order.urls import router as orders_router
 from book.urls import router as books_router
-from user.urls import router as users_router
+# from user.urls import router as users_router
 
 from .routers import DefaultRouter
 router = DefaultRouter()
 
 router.extend(orders_router)
 router.extend(books_router)
-router.extend(users_router)
+# router.extend(users_router)
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -54,6 +54,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/user/', include('user.urls')),
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/', include(router.urls)),

@@ -14,13 +14,15 @@
 from django.urls import path
 from .views import (
     RegisterView, LoginView, ProfileView,
-    PasswordResetView, PasswordResetConfirmView, ActivateAccountView
+    PasswordResetView, PasswordResetConfirmView, ActivateAccountView,
+    LogoutView
 )
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('activation/<str:id>/<str:token>/', ActivateAccountView.as_view(), name='activate'),
     path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('password_reset/', PasswordResetView.as_view(), name='password_reset'),
     path('password_reset_confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='activate'),

@@ -21,12 +21,14 @@ from .models import Profile, User
 from .serializers import (
     RegisterSerializer, ActivateAccountSerializer,
     LoginSerializer, ProfileSerializer,
-    PasswordResetSerializer, PasswordResetConfirmSerializer
+    PasswordResetSerializer, PasswordResetConfirmSerializer,
+    LogoutSerializer
 )
 from rest_framework.permissions import IsAuthenticated
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class RegisterView(generics.CreateAPIView):
@@ -52,6 +54,24 @@ class LoginView(generics.GenericAPIView):
         user = serializer.validated_data
         tokens = serializer.get_token(user)
         return Response(tokens, status=status.HTTP_200_OK)
+
+
+class LogoutView(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            refresh_token = serializer.validated_data['refresh_token']
+            refresh_token_obj = RefreshToken(refresh_token)
+            refresh_token_obj.blacklist()
+
+            return Response({"message": "Tizimdan chiqdingiz, refresh token bekor qilindi"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):

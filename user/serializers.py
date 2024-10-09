@@ -103,6 +103,18 @@ class LoginSerializer(serializers.Serializer):
         }
 
 
+class LogoutSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()
+
+    def validate(self, data):
+        refresh_token = data.get('refresh_token')
+
+        if not refresh_token:
+            raise serializers.ValidationError("Refresh token majburiy")
+
+        return data
+
+
 class ProfileSerializer(serializers.ModelSerializer):
     user_obj = UserSerializer(source='user', read_only=True)
 

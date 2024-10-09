@@ -117,7 +117,7 @@ class PasswordResetSerializer(serializers.Serializer):
     def send_reset_email(self, user):
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        reset_link = f"http://127.0.0.1:8000/api/password_reset_confirm/{uidb64}/{token}/"
+        reset_link = f"http://127.0.0.1:8000/api/v1/user/password_reset_confirm/{uidb64}/{token}/"
         send_mail(
             'Parolni tiklash',
             f"Parolni tiklash uchun quyidagi havolaga bosing: {reset_link}",
@@ -133,5 +133,6 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     def validate(self, data):
         if data['new_password'] != data['confirm_password']:
             raise serializers.ValidationError("Parollar bir xil bo'lishi kerak")
-
+        elif len(data['confirm_password']) < 8:
+            raise serializers.ValidationError("Password 8 ta belgidan kam bo'lmasligi kerak")
         return data

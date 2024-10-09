@@ -24,6 +24,9 @@ from .serializers import (
     PasswordResetSerializer, PasswordResetConfirmSerializer
 )
 from rest_framework.permissions import IsAuthenticated
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
 
 
 class RegisterView(generics.CreateAPIView):
@@ -36,7 +39,7 @@ class ActivateAccountView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        # serializer.save()
         return Response({'message': 'Akkount muvaffaqiyatli faollashtirildi'}, status=status.HTTP_200_OK)
 
 
@@ -47,7 +50,7 @@ class LoginView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        tokens = serializer.get_tokens(user)
+        tokens = serializer.get_token(user)
         return Response(tokens, status=status.HTTP_200_OK)
 
 

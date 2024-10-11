@@ -10,8 +10,9 @@ class Order(models.Model):
         ('pending', _('Pending')),              # Buyurtma hali tasdiqlanmagan
         ('confirmed', _('Confirmed')),          # Buyurtma tasdiqlangan
         ('shipped', _('Shipped')),              # Buyurtma jo'natilgan
-        ('delivered', _('Delivered')),          # Buyurtma yetkazilgan
+        ('delivered', _('Delivered')),          # Buyurtma qabul qilish punktiga yetkazilgan
         ('canceled', _('Canceled')),            # Buyurtma bekor qilingan
+        ('completed', _('Completed')),          # Buyurtma bajarilgan
     ]
 
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)                        # Buyurtma bergan profile
@@ -27,6 +28,10 @@ class Order(models.Model):
         total = sum(item.get_total_item_price() for item in self.orderitems.all())
         return total
 
+    def get_books(self):
+        return ", ".join(f"{item.book.title} - {item.book.price} $ x {item.quantity} ta" for item in self.orderitems.all())
+    get_books.short_description = 'Books with Prices and Quantities'
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='orderitems', on_delete=models.CASCADE)  # Buyurtma
@@ -39,3 +44,13 @@ class OrderItem(models.Model):
     def get_total_item_price(self):
         """Ushbu kitobning jami narxini hisoblaydi."""
         return self.quantity * self.book.price
+
+    # Bu code comentariyada sababi PUT, PATCH, to'g'ri ishlamayapti
+    # def save(self, *args, **kwargs):
+    #     """Book'ning mavjud sonini kamaytirish"""
+    #     if self.book.stock >= self.quantity:
+    #         self.book.stock -= self.quantity
+    #         self.book.save()
+    #     else:
+    #         raise ValueError(f"{self.book.title} dan {self.quantity} ta mavjud emas")
+    #     super().save(*args, **kwargs)

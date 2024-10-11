@@ -8,7 +8,7 @@ class Book(models.Model):
     author = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.PositiveBigIntegerField()
+    stock = models.PositiveBigIntegerField(default=0)
     publication_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

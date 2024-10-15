@@ -45,6 +45,7 @@ LOCALE_APPS = [
     'book',
     'user',
     'order',
+    'warehouse',
 ]
 
 THIRD_PARTY_APPS = [

@@ -32,7 +32,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.contrib.auth import authenticate
 
-
 User = get_user_model()
 
 
@@ -148,3 +147,32 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         elif len(data['confirm_password']) < 8:
             raise serializers.ValidationError("Password 8 ta belgidan kam bo'lmasligi kerak")
         return data
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'first_name', 'last_name')
+
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = Profile
+        fields = ('user', 'phone_number', 'address', 'profile_image', 'bio')
+
+    def update(self, instance, validated_data):
+        # User ma'lumotlarini yangilash
+        user_data = validated_data.pop('user')
+        user = instance.user
+        for attr, value in user_data.items():
+            setattr(user, attr, value)
+        user.save()
+
+        # Profile ma'lumotlarini yangilash
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance

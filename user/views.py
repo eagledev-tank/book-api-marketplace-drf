@@ -22,7 +22,7 @@ from .serializers import (
     RegisterSerializer, ActivateAccountSerializer,
     LoginSerializer, ProfileSerializer,
     PasswordResetSerializer, PasswordResetConfirmSerializer,
-    LogoutSerializer
+    LogoutSerializer, ProfileUpdateSerializer
 )
 from rest_framework.permissions import IsAuthenticated
 from django.utils.encoding import force_str
@@ -108,3 +108,12 @@ class PasswordResetConfirmView(generics.GenericAPIView):
         user.set_password(serializer.validated_data['new_password'])
         user.save()
         return Response({"message": "Parol yangilandi"}, status=status.HTTP_200_OK)
+
+
+class ProfileUpdateView(generics.UpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileUpdateSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user.profile

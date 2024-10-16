@@ -46,6 +46,7 @@ LOCALE_APPS = [
     'user',
     'order',
     'warehouse',
+    'moment',
 ]
 
 THIRD_PARTY_APPS = [

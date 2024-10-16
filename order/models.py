@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from book.models import Book
+from warehouse.models import WarehouseItem
 from user.models import Profile
 
 
@@ -21,36 +21,47 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')   # Buyurtma holati
 
     def __str__(self):
-        return f"Order {self.id} - {self.profile.user.email}"
-
-    # def get_total_price(self):
-    #     """Buyurtmaning umumiy narxini hisoblaydi."""
-    #     total = sum(item.get_total_item_price() for item in self.orderitems.all())
-    #     return total
-
-    def get_books(self):
-        return ", ".join(f"{item.book.title} - {item.quantity} ta" for item in self.orderitems.all())
-    get_books.short_description = 'Books with Quantities'
+        return f"Order=> {self.id} - {self.profile.user.email}"
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='orderitems', on_delete=models.CASCADE)  # Buyurtma
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)                               # Kitob
+    book = models.ForeignKey(WarehouseItem, on_delete=models.CASCADE)                      # Kitob
     quantity = models.PositiveBigIntegerField(default=1)                                   # Kitoblar soni
 
     def __str__(self):
-        return f"{self.quantity} x {self.book.title}"
+        return f"{self.quantity} x {self.book.book.title}"
 
-    # def get_total_item_price(self):
-    #     """Ushbu kitobning jami narxini hisoblaydi."""
-    #     return self.quantity * self.book.price
+    def save(self, *args, **kwargs):
+        # Eski quantity'ni olish
+        old_quantity = None
+        if self.pk:  # Agar OrderItem mavjud bo'lsa (update jarayoni)
+            old_quantity = OrderItem.objects.get(pk=self.pk).quantity
 
-    # Bu code comentariyada sababi PUT, PATCH, to'g'ri ishlamayapti
-    # def save(self, *args, **kwargs):
-    #     """Book'ning mavjud sonini kamaytirish"""
-    #     if self.book.stock >= self.quantity:
-    #         self.book.stock -= self.quantity
-    #         self.book.save()
-    #     else:
-    #         raise ValueError(f"{self.book.title} dan {self.quantity} ta mavjud emas")
-    #     super().save(*args, **kwargs)
+        new_quantity = self.quantity
+        book = self.book
+
+        # Kitobning mavjud miqdorini yangilash (eski va yangi quantity'ni taqqoslash)
+        if old_quantity is not None:
+            if new_quantity > old_quantity:
+                # Agar yangi quantity katta bo'lsa, kitob stockidan farqni kamaytiramiz
+                difference = new_quantity - old_quantity
+                if book.count < difference:
+                    raise ValueError(f'{book.book.title} dan {new_quantity} ta mavjud emas')
+                book.count -= difference
+            elif new_quantity < old_quantity:
+                # Agar yangi quantity kichik bo'lsa, kitob stockiga farqni qaytaramiz
+                difference = old_quantity - new_quantity
+                book.count += difference
+        else:
+            # Yangi buyurtma bo'lsa, to'g'ridan-to'g'ri stockni kamaytiramiz
+            if book.count < new_quantity:
+                raise ValueError(f'{book.book.title} dan {new_quantity} ta mavjud emas')
+            book.count -= new_quantity
+
+        # Kitobning umumiy narxi (`total`) ni yangilash
+        book.total = book.count * book.price
+        book.save()
+
+        # Asosiy save() metodini chaqirish
+        super().save(*args, **kwargs)

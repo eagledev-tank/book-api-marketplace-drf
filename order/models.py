@@ -23,14 +23,14 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} - {self.profile.user.email}"
 
-    def get_total_price(self):
-        """Buyurtmaning umumiy narxini hisoblaydi."""
-        total = sum(item.get_total_item_price() for item in self.orderitems.all())
-        return total
+    # def get_total_price(self):
+    #     """Buyurtmaning umumiy narxini hisoblaydi."""
+    #     total = sum(item.get_total_item_price() for item in self.orderitems.all())
+    #     return total
 
     def get_books(self):
-        return ", ".join(f"{item.book.title} - {item.book.price} $ x {item.quantity} ta" for item in self.orderitems.all())
-    get_books.short_description = 'Books with Prices and Quantities'
+        return ", ".join(f"{item.book.title} - {item.quantity} ta" for item in self.orderitems.all())
+    get_books.short_description = 'Books with Quantities'
 
 
 class OrderItem(models.Model):
@@ -41,9 +41,9 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.book.title}"
 
-    def get_total_item_price(self):
-        """Ushbu kitobning jami narxini hisoblaydi."""
-        return self.quantity * self.book.price
+    # def get_total_item_price(self):
+    #     """Ushbu kitobning jami narxini hisoblaydi."""
+    #     return self.quantity * self.book.price
 
     # Bu code comentariyada sababi PUT, PATCH, to'g'ri ishlamayapti
     # def save(self, *args, **kwargs):

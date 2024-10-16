@@ -26,6 +26,7 @@ from order.urls import router as orders_router
 from book.urls import router as books_router
 # from user.urls import router as users_router
 from warehouse.urls import router as warehouses_router
+from moment.urls import router as moment_router
 
 from .routers import DefaultRouter
 router = DefaultRouter()
@@ -33,6 +34,7 @@ router = DefaultRouter()
 router.extend(orders_router)
 router.extend(books_router)
 router.extend(warehouses_router)
+router.extend(moment_router)
 # router.extend(users_router)
 
 from rest_framework_simplejwt.views import (
